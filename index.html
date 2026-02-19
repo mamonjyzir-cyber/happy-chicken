@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Happy Chicken Project</title>
+    <style>
+        :root { --bg-color: #1a1a1a; --text-color: #ffffff; }
+        body { 
+            background-color: var(--bg-color); color: var(--text-color);
+            text-align: center; font-family: 'Segoe UI', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; margin: 0; transition: all 0.5s ease; overflow: hidden;
+        }
+        #akoho { 
+            font-size: clamp(80px, 20vw, 150px); cursor: pointer; 
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            user-select: none; display: inline-block;
+        }
+        #akoho:active { transform: scale(0.8) rotate(10deg); }
+        .progress-container {
+            width: 80%; max-width: 400px; height: 15px; background: rgba(255,255,255,0.2); 
+            border-radius: 10px; margin: 30px 0; overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%; height: 100%; 
+            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%); 
+            transition: width 0.2s ease;
+        }
+        .status { font-style: italic; opacity: 0.8; height: 25px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1 id="title">Feed the Happiness</h1>
+    <p class="status" id="status">Click the egg to start...</p>
+
+    <div id="akoho">🥚</div>
+    
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+    
+    <p id="counter">Happiness: 0%</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <script>
+        let happiness = 0;
+        const akoho = document.getElementById('akoho');
+        const bar = document.getElementById('progress-bar');
+        const status = document.getElementById('status');
+        const counter = document.getElementById('counter');
+
+        // FEO VAOVAO (Mivantana avy amin'ny CDN)
+        const clickSound = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
+        const winSound = new Audio('https://www.myinstants.com/media/sounds/tada.mp3');
+
+        // Mba hampandeha tsara ny feo amin'ny finday sy Linux
+        clickSound.load();
+        winSound.load();
+
+        akoho.addEventListener('click', () => {
+            if (happiness < 100) {
+                // Alefa ny feo (andramana amboarina raha sanatria misy error)
+                clickSound.currentTime = 0;
+                clickSound.play().catch(e => console.log("Feo voasakana: Mila click voalohany"));
+
+                happiness += 10; // Nataoko 10% isaky ny click mba ho haingana ny andrana
+                if(happiness > 100) happiness = 100;
+                updateUI();
+            }
+        });
+
+        function updateUI() {
+            bar.style.width = happiness + "%";
+            counter.innerHTML = `Happiness: ${happiness}%`;
+
+            if (happiness < 30) {
+                akoho.innerHTML = "🥚";
+                status.innerHTML = "It's trembling...";
+            } else if (happiness < 60) {
+                akoho.innerHTML = "🐣";
+                status.innerHTML = "Hello world!";
+                document.body.style.backgroundColor = "#2c3e50";
+            } else if (happiness < 90) {
+                akoho.innerHTML = "🐤";
+                status.innerHTML = "It's growing fast!";
+                document.body.style.backgroundColor = "#8e44ad";
+            } else if (happiness < 100) {
+                akoho.innerHTML = "🐔";
+                status.innerHTML = "Almost legendary!";
+                document.body.style.backgroundColor = "#d35400";
+            } else {
+                akoho.innerHTML = "👑🍗";
+                status.innerHTML = "ULTIMATE HAPPINESS!";
+                document.body.style.backgroundColor = "#f1c40f";
+                document.body.style.color = "#000";
+                winSound.play(); 
+                fireworks();
+            }
+        }
+
+        function fireworks() {
+            var end = Date.now() + (5 * 1000);
+            (function frame() {
+                confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+    </script>
+</body>
+</html>
