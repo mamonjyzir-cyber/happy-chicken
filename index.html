@@ -3,64 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chicken RPG: Legendary Evolution</title>
-    <script async data-goatcounter="https://YOUR-SITE-NAME.goatcounter.com/count" src="//gc.zgo.at/count.js"></script>
+    <title>Chicken RPG: Elite System</title>
+    <script async data-goatcounter="https://mamonjyzir.goatcounter.com/count" src="//gc.zgo.at/count.js"></script>
+    
     <style>
-        :root { --gold: #fbbf24; --bg: #020617; --card: #1e293b; --accent: #3b82f6; }
-        body { 
-            background: var(--bg); color: white; font-family: 'Arial Black', sans-serif; 
-            margin: 0; overflow: hidden; height: 100vh; 
-        }
-
-        /* --- SCREENS --- */
+        :root { --gold: #fbbf24; --bg: #020617; --card: #1e293b; }
+        body { background: var(--bg); color: white; font-family: 'Arial Black', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
         .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; background: var(--bg); z-index: 10; }
         .hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
-
-        /* --- UI ELEMENTS --- */
-        .menu-card { text-align: center; padding: 30px; background: var(--card); border-radius: 30px; border: 4px solid var(--gold); width: 340px; box-shadow: 0 0 50px rgba(251, 191, 36, 0.2); }
-        input { width: 80%; padding: 12px; margin: 15px 0; border-radius: 10px; border: none; text-align: center; font-weight: bold; background: #0f172a; color: white; border: 1px solid #334155; }
+        .menu-card { text-align: center; padding: 25px; background: var(--card); border-radius: 30px; border: 4px solid var(--gold); width: 350px; box-shadow: 0 0 50px rgba(251, 191, 36, 0.2); max-height: 90vh; overflow-y: auto; }
+        input { width: 85%; padding: 10px; margin: 6px 0; border-radius: 10px; border: none; text-align: center; font-weight: bold; background: #0f172a; color: white; border: 1px solid #334155; font-size: 13px; }
+        label { font-size: 10px; color: #94a3b8; display: block; text-align: left; margin-left: 25px; margin-top: 5px; }
         .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
         .btn-gold { background: var(--gold); color: #000; }
-        .btn-sec { background: #334155; color: white; font-size: 11px; }
-
-        /* --- GAMEPLAY --- */
+        .btn-outline { background: transparent; border: 2px solid var(--gold); color: var(--gold); margin-top: 5px; }
         .header { width: 100%; max-width: 450px; background: var(--card); padding: 15px; display: flex; justify-content: space-around; border-bottom: 4px solid var(--gold); }
-        .stat-box { text-align: center; }
         .val { font-size: 22px; color: var(--gold); display: block; }
-
-        #enemy-sprite { font-size: 140px; cursor: pointer; user-select: none; transition: 0.1s; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
+        #enemy-sprite { font-size: 130px; cursor: pointer; user-select: none; transition: 0.1s; margin: 20px; }
         #enemy-sprite:active { transform: scale(0.8); }
-
-        /* --- ANIMATIONS --- */
-        .shake { animation: shake 0.4s both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 30%, 70% { transform: translate3d(-6px, 0, 0); } 50% { transform: translate3d(6px, 0, 0); } }
-        .evolve-flash { animation: flash 0.5s ease-out; }
-        @keyframes flash { 0% { background: white; } 100% { background: var(--bg); } }
-
-        .skin-green { filter: hue-rotate(90deg) brightness(1.2) drop-shadow(0 0 20px #10b981); }
-        .skin-bronze { filter: sepia(1) saturate(2) brightness(0.9) drop-shadow(0 0 20px #cd7f32); }
-        .skin-gold { filter: sepia(0.5) saturate(5) hue-rotate(-10deg) brightness(1.3) drop-shadow(0 0 40px #fbbf24); }
-
-        .shop-area { width: 100%; max-width: 450px; background: var(--card); padding: 25px; border-radius: 30px 30px 0 0; }
-        .shop-btn { width: 100%; background: #0f172a; border: 3px solid #334155; padding: 20px; border-radius: 20px; color: white; cursor: pointer; }
-        .shop-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        table { width: 100%; border-spacing: 0 5px; margin: 15px 0; }
-        td { padding: 10px; background: rgba(15, 23, 42, 0.5); }
+        table { width: 100%; border-spacing: 0 5px; }
+        td { padding: 10px; background: rgba(15, 23, 42, 0.5); font-size: 14px; }
         .me { background: rgba(251, 191, 36, 0.15); color: var(--gold); }
     </style>
 </head>
-<body id="main-body">
+<body>
 
-    <div id="nick-screen" class="screen">
+    <div id="start-screen" class="screen">
         <div class="menu-card">
-            <h1 style="color:var(--gold); margin:0;">CHICKEN RPG</h1>
-            <input type="text" id="player-nick" placeholder="Enter Nickname..." maxlength="12">
-            <button class="btn btn-gold" onclick="setNickname()">START BATTLE ⚔️</button>
-            <div style="margin-top:20px; border-top:1px dashed #475569; padding-top:10px;">
-                <p style="font-size:10px; color:#94a3b8;">ACCOUNT RECOVERY</p>
-                <button class="btn btn-sec" onclick="importSave()">RESTORE FROM CODE 🛡️</button>
+            <h1 style="color:var(--gold); margin-bottom:20px;">CHICKEN RPG</h1>
+            <button class="btn btn-gold" onclick="showAuth('login')">LOG IN</button>
+            <button class="btn btn-outline" onclick="showAuth('signup')">CREATE ACCOUNT</button>
+        </div>
+    </div>
+
+    <div id="auth-screen" class="screen hidden">
+        <div class="menu-card">
+            <h2 id="auth-title" style="color:var(--gold); margin-top:0;">LOGIN</h2>
+            
+            <div id="form-fields">
+                <label>NICKNAME</label>
+                <input type="text" id="field-nick" placeholder="Username">
+                
+                <div id="extra-fields" class="hidden">
+                    <label>EMAIL</label>
+                    <input type="email" id="field-email" placeholder="example@mail.com">
+                    <label>BIRTH DATE</label>
+                    <input type="date" id="field-birth">
+                </div>
+
+                <label>PASSWORD</label>
+                <input type="password" id="field-pass" placeholder="Enter MDP">
             </div>
+
+            <button id="auth-submit" class="btn btn-gold" onclick="processAuth()">CONFIRM ⚔️</button>
+            <button class="btn btn-outline" style="font-size:10px; padding:8px;" onclick="backToStart()">BACK</button>
         </div>
     </div>
 
@@ -70,196 +66,147 @@
             <div class="stat-box"><small>GOLD</small><b class="val">$<span id="gold">0</span></b></div>
             <div class="stat-box"><small>CLICKS</small><b class="val" id="clicks">0/50</b></div>
         </div>
-
-        <button onclick="togglePause()" style="position:absolute; top:80px; right:20px; background:none; border:2px solid var(--gold); color:var(--gold); border-radius:50%; width:40px; height:40px; cursor:pointer; font-weight:bold; z-index:100;">🏆</button>
-
+        <button onclick="location.reload()" style="position:absolute; top:80px; left:20px; background:#ef4444; border:none; color:white; padding: 5px 12px; cursor:pointer; font-weight:bold; border-radius:10px; font-size:10px;">LOGOUT</button>
+        <button onclick="toggleRank()" style="position:absolute; top:80px; right:20px; background:var(--gold); border:none; color:black; border-radius:50%; width:40px; height:40px; cursor:pointer; font-weight:bold;">🏆</button>
         <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-            <h2 id="stage-name" style="color:#94a3b8; letter-spacing:4px; margin:0;">NORMAL EGG</h2>
+            <h2 id="stage-name" style="color:#94a3b8; letter-spacing:2px; margin:0;">NORMAL EGG</h2>
             <div id="enemy-sprite" onclick="handleAttack()">🥚</div>
             <p id="bonus-info" style="color:#10b981; font-size:12px;">$1 per 50 clicks</p>
         </div>
-
-        <div class="shop-area">
-            <button class="shop-btn" id="evolve-btn" onclick="buyEvolution()">
-                <div style="font-size:14px; opacity:0.7;">NEXT EVOLUTION</div>
-                <div id="price-tag" style="color:var(--gold); font-size:24px;">$5</div>
-            </button>
-            <button class="btn btn-sec" onclick="exportSave()" style="margin-top:10px; opacity:0.5;">COPY SAVE CODE</button>
+        <div style="width:100%; max-width:450px; background:var(--card); padding:20px; border-radius:25px 25px 0 0;">
+            <button class="btn btn-gold" id="evolve-btn" onclick="buyEvolution()">EVOLVE (<span id="price-tag">$5</span>)</button>
         </div>
     </div>
 
-    <div id="pause-screen" class="screen hidden" style="background:rgba(2, 6, 23, 0.96);">
-        <div class="menu-card" style="max-height: 80vh; overflow-y:auto;">
+    <div id="rank-screen" class="screen hidden" style="background:rgba(2, 6, 23, 0.98);">
+        <div class="menu-card" style="width: 360px;">
             <h2 style="color:var(--gold)">LEADERBOARD</h2>
-            <table>
-                <tbody id="ranking-list"></tbody>
-            </table>
-            <button class="btn btn-gold" onclick="togglePause()">RESUME ⚔️</button>
+            <table><tbody id="ranking-list"></tbody></table>
+            <button class="btn btn-gold" onclick="toggleRank()">CLOSE</button>
         </div>
     </div>
 
-<script>
-(function() {
-    let data = { nick: "Hero", money: 0, stage: 0, clickCount: 0 };
-    const SECRET_KEY = "POPO-RPG-2026-LEGACY";
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const config = [
-        { name: "NORMAL EGG", icon: "🥚", class: "", price: 5, income: 1 },
-        { name: "GREEN CHICK", icon: "🐣", class: "skin-green", price: 10, income: 3 },
-        { name: "BRONZE CHICKEN", icon: "🐥", class: "skin-bronze", price: 20, income: 10 },
-        { name: "GOLDEN KING", icon: "🐓", class: "skin-gold", price: 0, income: 50 }
-    ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyBF9FSfg-hTxPQgfsE_-qX52QU-QFs682c",
+            authDomain: "chickenevolutionzir.firebaseapp.com",
+            projectId: "chickenevolutionzir",
+            storageBucket: "chickenevolutionzir.firebasestorage.app",
+            messagingSenderId: "576435489622",
+            appId: "1:576435489622:web:b501c88918917e9eb824f7",
+            measurementId: "G-HG9KCW6KWW"
+        };
 
-    const fakePlayers = [
-        { nick: "CryptoChick", money: 1000 },
-        { nick: "EggLord_99", money: 500 },
-        { nick: "MalagasyPro", money: 150 },
-        { nick: "NoobZ", money: 20 }
-    ];
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    function playSfx(freq, type, dur, vol, slide = false) {
-        const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
-        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        if(slide) osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + dur);
-        g.gain.setValueAtTime(vol, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-        osc.connect(g); g.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + dur);
-    }
+        let data = { nick: "", email: "", birth: "", pass: "", money: 0, stage: 0, clickCount: 0 };
+        let authMode = "login";
+        const config = [
+            { name: "NORMAL EGG", icon: "🥚", price: 5, income: 1 },
+            { name: "GREEN CHICK", icon: "🐣", price: 10, income: 3 },
+            { name: "BRONZE CHICKEN", icon: "🐥", price: 20, income: 10 },
+            { name: "GOLDEN KING", icon: "🐓", price: 0, income: 50 }
+        ];
 
-    window.setNickname = function() {
-        const val = document.getElementById('player-nick').value;
-        if(val.length < 2) return alert("Enter a valid name!");
-        data.nick = val;
+        window.showAuth = (mode) => {
+            authMode = mode;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('auth-title').innerText = mode === 'login' ? "LOGIN" : "CREATE ACCOUNT";
+            document.getElementById('extra-fields').classList.toggle('hidden', mode === 'login');
+        };
 
-        // --- TRACKING GOATCOUNTER ---
-        if (window.goatcounter && window.goatcounter.count) {
-            window.goatcounter.count({
-                path: 'login-' + val,
-                title: 'New Player Joined',
-                event: true
+        window.backToStart = () => {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        };
+
+        window.processAuth = async function() {
+            const nick = document.getElementById('field-nick').value.trim();
+            const pass = document.getElementById('field-pass').value.trim();
+            if(!nick || !pass) return alert("Fill all fields!");
+
+            const docRef = doc(db, "players", nick);
+            const docSnap = await getDoc(docRef);
+
+            if(authMode === "signup") {
+                if(docSnap.exists()) return alert("Username already taken!");
+                const email = document.getElementById('field-email').value;
+                const birth = document.getElementById('field-birth').value;
+                if(!email || !birth) return alert("Please fill Email and Birth Date!");
+                data = { nick, pass, email, birth, money: 0, stage: 0, clickCount: 0 };
+                enterGame();
+            } else {
+                if(!docSnap.exists()) return alert("User not found!");
+                const dbData = docSnap.data();
+                if(dbData.pass !== pass) return alert("Wrong password!");
+                data = dbData;
+                enterGame();
+            }
+        };
+
+        function enterGame() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('disp-nick').innerText = data.nick.toUpperCase();
+            syncToFirebase();
+            startLeaderboardListener();
+            render();
+        }
+
+        window.handleAttack = () => {
+            data.clickCount++;
+            if(data.clickCount >= 50) {
+                data.money += config[data.stage].income;
+                data.clickCount = 0;
+                syncToFirebase();
+            }
+            render();
+        };
+
+        window.buyEvolution = () => {
+            const cur = config[data.stage];
+            if(data.money >= cur.price && data.stage < 3) {
+                data.money -= cur.price;
+                data.stage++;
+                syncToFirebase();
+                render();
+            }
+        };
+
+        async function syncToFirebase() {
+            if(data.nick) await setDoc(doc(db, "players", data.nick), data);
+        }
+
+        function startLeaderboardListener() {
+            const q = query(collection(db, "players"), orderBy("money", "desc"), limit(10));
+            onSnapshot(q, (snap) => {
+                let html = ""; let i = 1;
+                snap.forEach(d => {
+                    const p = d.data();
+                    html += `<tr class="${p.nick===data.nick?'me':''}"><td>${i++}</td><td style="text-align:left">${p.nick.toUpperCase()}</td><td>$${p.money}</td></tr>`;
+                });
+                document.getElementById('ranking-list').innerHTML = html;
             });
         }
 
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        document.getElementById('nick-screen').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
-        save(); render();
-    };
+        window.toggleRank = () => document.getElementById('rank-screen').classList.toggle('hidden');
 
-    window.handleAttack = function() {
-        data.clickCount++;
-        playSfx(150, 'sine', 0.1, 0.2);
-        if(data.clickCount >= 50) {
-            data.money += config[data.stage].income;
-            data.clickCount = 0;
-            playSfx(800, 'triangle', 0.2, 0.1);
+        function render() {
+            document.getElementById('gold').innerText = data.money;
+            document.getElementById('clicks').innerText = data.clickCount + "/50";
+            const cur = config[data.stage];
+            document.getElementById('enemy-sprite').innerText = cur.icon;
+            document.getElementById('stage-name').innerText = cur.name;
+            document.getElementById('price-tag').innerText = data.stage < 3 ? "$" + cur.price : "MAX";
+            document.getElementById('evolve-btn').disabled = data.stage >= 3 || data.money < cur.price;
+            document.getElementById('bonus-info').innerText = `$${cur.income} per 50 clicks`;
         }
-        render(); save();
-    };
-
-    window.buyEvolution = function() {
-        const cur = config[data.stage];
-        if(data.money >= cur.price && data.stage < 3) {
-            data.money -= cur.price;
-            data.stage++;
-
-            // --- TRACKING EVOLUTION ---
-            if (window.goatcounter && window.goatcounter.count) {
-                window.goatcounter.count({
-                    path: 'evolve-to-' + data.stage + '-' + data.nick,
-                    title: 'Evolution Achievement',
-                    event: true
-                });
-            }
-
-            playSfx(60, 'sawtooth', 0.8, 0.4, true);
-            document.body.classList.add('evolve-flash');
-            document.getElementById('enemy-sprite').classList.add('shake');
-            setTimeout(() => {
-                document.body.classList.remove('evolve-flash');
-                document.getElementById('enemy-sprite').classList.remove('shake');
-            }, 500);
-            render(); save();
-        }
-    };
-
-    function save() {
-        const encrypted = btoa(JSON.stringify(data) + SECRET_KEY);
-        localStorage.setItem('_chick_secure_save', encrypted);
-    }
-
-    function load() {
-        const saved = localStorage.getItem('_chick_secure_save');
-        if(saved) {
-            try {
-                const decrypted = atob(saved);
-                if(decrypted.includes(SECRET_KEY)) {
-                    data = JSON.parse(decrypted.replace(SECRET_KEY, ''));
-                    document.getElementById('nick-screen').classList.add('hidden');
-                    document.getElementById('game-screen').classList.remove('hidden');
-                }
-            } catch(e) { console.error("Save Corrupt"); }
-        }
-    }
-
-    window.exportSave = function() {
-        const s = localStorage.getItem('_chick_secure_save');
-        navigator.clipboard.writeText(s).then(() => alert("Save Code Copied! ✅"));
-    };
-
-    window.importSave = function() {
-        const code = prompt("Paste Save Code:");
-        if(code && atob(code).includes(SECRET_KEY)) {
-            localStorage.setItem('_chick_secure_save', code);
-            location.reload();
-        } else { alert("Invalid Code!"); }
-    };
-
-    window.togglePause = function() {
-        const ps = document.getElementById('pause-screen');
-        if(ps.classList.contains('hidden')) {
-            updateRank();
-            ps.classList.remove('hidden');
-        } else { ps.classList.add('hidden'); }
-    };
-
-    function updateRank() {
-        let players = [...fakePlayers, { nick: data.nick, money: data.money, me: true }];
-        players.sort((a,b) => b.money - a.money);
-        document.getElementById('ranking-list').innerHTML = players.map((p, i) => `
-            <tr class="${p.me ? 'me' : ''}">
-                <td>${i+1}</td>
-                <td style="text-align:left">${p.nick.toUpperCase()}</td>
-                <td>$${p.money}</td>
-            </tr>
-        `).join('');
-    }
-
-    function render() {
-        document.getElementById('gold').innerText = data.money;
-        document.getElementById('clicks').innerText = data.clickCount + "/50";
-        document.getElementById('disp-nick').innerText = data.nick.toUpperCase();
-        const cur = config[data.stage];
-        const spr = document.getElementById('enemy-sprite');
-        spr.innerText = cur.icon;
-        spr.className = cur.class;
-        document.getElementById('stage-name').innerText = cur.name;
-        document.getElementById('bonus-info').innerText = `$${cur.income} per 50 clicks`;
-        const btn = document.getElementById('evolve-btn');
-        if(data.stage < 3) {
-            document.getElementById('price-tag').innerText = "$" + cur.price;
-            btn.disabled = data.money < cur.price;
-        } else {
-            document.getElementById('price-tag').innerText = "MAX LEVEL";
-            btn.disabled = true;
-        }
-    }
-
-    load(); render();
-})();
-</script>
+    </script>
 <script data-goatcounter="https://mamonjyzir.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </body>
