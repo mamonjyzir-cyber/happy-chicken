@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chicken RPG: Legendary Evolution</title>
+    <script async data-goatcounter="https://YOUR-SITE-NAME.goatcounter.com/count" src="//gc.zgo.at/count.js"></script>
     <style>
         :root { --gold: #fbbf24; --bg: #020617; --card: #1e293b; --accent: #3b82f6; }
         body { 
@@ -30,7 +31,7 @@
         #enemy-sprite { font-size: 140px; cursor: pointer; user-select: none; transition: 0.1s; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
         #enemy-sprite:active { transform: scale(0.8); }
 
-        /* --- ANIMATIONS & SKINS --- */
+        /* --- ANIMATIONS --- */
         .shake { animation: shake 0.4s both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 30%, 70% { transform: translate3d(-6px, 0, 0); } 50% { transform: translate3d(6px, 0, 0); } }
         .evolve-flash { animation: flash 0.5s ease-out; }
@@ -44,7 +45,6 @@
         .shop-btn { width: 100%; background: #0f172a; border: 3px solid #334155; padding: 20px; border-radius: 20px; color: white; cursor: pointer; }
         .shop-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* --- RANKING TABLE --- */
         table { width: 100%; border-spacing: 0 5px; margin: 15px 0; }
         td { padding: 10px; background: rgba(15, 23, 42, 0.5); }
         .me { background: rgba(251, 191, 36, 0.15); color: var(--gold); }
@@ -57,7 +57,6 @@
             <h1 style="color:var(--gold); margin:0;">CHICKEN RPG</h1>
             <input type="text" id="player-nick" placeholder="Enter Nickname..." maxlength="12">
             <button class="btn btn-gold" onclick="setNickname()">START BATTLE ⚔️</button>
-            
             <div style="margin-top:20px; border-top:1px dashed #475569; padding-top:10px;">
                 <p style="font-size:10px; color:#94a3b8;">ACCOUNT RECOVERY</p>
                 <button class="btn btn-sec" onclick="importSave()">RESTORE FROM CODE 🛡️</button>
@@ -72,7 +71,7 @@
             <div class="stat-box"><small>CLICKS</small><b class="val" id="clicks">0/50</b></div>
         </div>
 
-        <button onclick="togglePause()" style="position:absolute; top:80px; right:20px; background:none; border:2px solid var(--gold); color:var(--gold); border-radius:50%; width:40px; height:40px; cursor:pointer; font-weight:bold;">🏆</button>
+        <button onclick="togglePause()" style="position:absolute; top:80px; right:20px; background:none; border:2px solid var(--gold); color:var(--gold); border-radius:50%; width:40px; height:40px; cursor:pointer; font-weight:bold; z-index:100;">🏆</button>
 
         <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
             <h2 id="stage-name" style="color:#94a3b8; letter-spacing:4px; margin:0;">NORMAL EGG</h2>
@@ -101,7 +100,6 @@
 
 <script>
 (function() {
-    // --- CORE DATA (ANTI-HACK HIDDEN) ---
     let data = { nick: "Hero", money: 0, stage: 0, clickCount: 0 };
     const SECRET_KEY = "POPO-RPG-2026-LEGACY";
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -120,7 +118,6 @@
         { nick: "NoobZ", money: 20 }
     ];
 
-    // --- AUDIO SYSTEM ---
     function playSfx(freq, type, dur, vol, slide = false) {
         const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
         osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
@@ -131,11 +128,20 @@
         osc.start(); osc.stop(audioCtx.currentTime + dur);
     }
 
-    // --- GAME LOGIC ---
     window.setNickname = function() {
         const val = document.getElementById('player-nick').value;
         if(val.length < 2) return alert("Enter a valid name!");
         data.nick = val;
+
+        // --- TRACKING GOATCOUNTER ---
+        if (window.goatcounter && window.goatcounter.count) {
+            window.goatcounter.count({
+                path: 'login-' + val,
+                title: 'New Player Joined',
+                event: true
+            });
+        }
+
         if (audioCtx.state === 'suspended') audioCtx.resume();
         document.getElementById('nick-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.remove('hidden');
@@ -144,11 +150,11 @@
 
     window.handleAttack = function() {
         data.clickCount++;
-        playSfx(150, 'sine', 0.1, 0.2); // Hit sound
+        playSfx(150, 'sine', 0.1, 0.2);
         if(data.clickCount >= 50) {
             data.money += config[data.stage].income;
             data.clickCount = 0;
-            playSfx(800, 'triangle', 0.2, 0.1); // Coin sound
+            playSfx(800, 'triangle', 0.2, 0.1);
         }
         render(); save();
     };
@@ -158,21 +164,27 @@
         if(data.money >= cur.price && data.stage < 3) {
             data.money -= cur.price;
             data.stage++;
-            
-            // EPIC EFFECTS
-            playSfx(60, 'sawtooth', 0.8, 0.4, true); // Explosion
+
+            // --- TRACKING EVOLUTION ---
+            if (window.goatcounter && window.goatcounter.count) {
+                window.goatcounter.count({
+                    path: 'evolve-to-' + data.stage + '-' + data.nick,
+                    title: 'Evolution Achievement',
+                    event: true
+                });
+            }
+
+            playSfx(60, 'sawtooth', 0.8, 0.4, true);
             document.body.classList.add('evolve-flash');
             document.getElementById('enemy-sprite').classList.add('shake');
             setTimeout(() => {
                 document.body.classList.remove('evolve-flash');
                 document.getElementById('enemy-sprite').classList.remove('shake');
             }, 500);
-            
             render(); save();
         }
     };
 
-    // --- SAVE & ACCOUNT PROTECTION ---
     function save() {
         const encrypted = btoa(JSON.stringify(data) + SECRET_KEY);
         localStorage.setItem('_chick_secure_save', encrypted);
@@ -205,7 +217,6 @@
         } else { alert("Invalid Code!"); }
     };
 
-    // --- PAUSE & RANKING ---
     window.togglePause = function() {
         const ps = document.getElementById('pause-screen');
         if(ps.classList.contains('hidden')) {
@@ -217,7 +228,6 @@
     function updateRank() {
         let players = [...fakePlayers, { nick: data.nick, money: data.money, me: true }];
         players.sort((a,b) => b.money - a.money);
-        
         document.getElementById('ranking-list').innerHTML = players.map((p, i) => `
             <tr class="${p.me ? 'me' : ''}">
                 <td>${i+1}</td>
@@ -231,14 +241,12 @@
         document.getElementById('gold').innerText = data.money;
         document.getElementById('clicks').innerText = data.clickCount + "/50";
         document.getElementById('disp-nick').innerText = data.nick.toUpperCase();
-        
         const cur = config[data.stage];
         const spr = document.getElementById('enemy-sprite');
         spr.innerText = cur.icon;
         spr.className = cur.class;
         document.getElementById('stage-name').innerText = cur.name;
         document.getElementById('bonus-info').innerText = `$${cur.income} per 50 clicks`;
-        
         const btn = document.getElementById('evolve-btn');
         if(data.stage < 3) {
             document.getElementById('price-tag').innerText = "$" + cur.price;
@@ -252,7 +260,5 @@
     load(); render();
 })();
 </script>
-<script data-goatcounter="https://mamonjyzir.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
