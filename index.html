@@ -2,209 +2,272 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chicken RPG: Elite System</title>
-    <script async data-goatcounter="https://mamonjyzir.goatcounter.com/count" src="//gc.zgo.at/count.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Chicken RPG: V2.3.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore-compat.js"></script>
+
     <style>
-        :root { --gold: #fbbf24; --bg: #020617; --card: #1e293b; }
-        body { background: var(--bg); color: white; font-family: 'Arial Black', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
-        .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; background: var(--bg); z-index: 10; }
-        .hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
-        .menu-card { text-align: center; padding: 25px; background: var(--card); border-radius: 30px; border: 4px solid var(--gold); width: 350px; box-shadow: 0 0 50px rgba(251, 191, 36, 0.2); max-height: 90vh; overflow-y: auto; }
-        input { width: 85%; padding: 10px; margin: 6px 0; border-radius: 10px; border: none; text-align: center; font-weight: bold; background: #0f172a; color: white; border: 1px solid #334155; font-size: 13px; }
-        label { font-size: 10px; color: #94a3b8; display: block; text-align: left; margin-left: 25px; margin-top: 5px; }
-        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
-        .btn-gold { background: var(--gold); color: #000; }
-        .btn-outline { background: transparent; border: 2px solid var(--gold); color: var(--gold); margin-top: 5px; }
-        .header { width: 100%; max-width: 450px; background: var(--card); padding: 15px; display: flex; justify-content: space-around; border-bottom: 4px solid var(--gold); }
-        .val { font-size: 22px; color: var(--gold); display: block; }
-        #enemy-sprite { font-size: 130px; cursor: pointer; user-select: none; transition: 0.1s; margin: 20px; }
-        #enemy-sprite:active { transform: scale(0.8); }
-        table { width: 100%; border-spacing: 0 5px; }
-        td { padding: 10px; background: rgba(15, 23, 42, 0.5); font-size: 14px; }
-        .me { background: rgba(251, 191, 36, 0.15); color: var(--gold); }
+        :root { --cyan: #00fbff; --gold: #ffcc00; --xp: #bc00ff; --bg: #050505; }
+        * { margin:0; padding:0; box-sizing:border-box; user-select: none; font-family: 'Orbitron', sans-serif; }
+        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
+
+        .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(circle, #1a1a2e 0%, #050505 100%); z-index: 10; }
+        .active { display: flex; }
+
+        h1 { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); margin-bottom: 25px; text-align: center; }
+        input { width: 100%; max-width: 300px; padding: 14px; margin-bottom: 12px; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; text-align: center; outline: none; }
+        
+        button { width: 100%; max-width: 300px; padding: 15px; border: 1px solid var(--cyan); border-radius: 10px; background: rgba(0, 251, 255, 0.1); color: white; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 5px; }
+        button:hover { background: var(--cyan); color: #000; box-shadow: 0 0 15px var(--cyan); }
+        button:disabled { opacity: 0.3; }
+
+        .hud { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.8); border-bottom: 2px solid var(--cyan); z-index: 20; }
+        .stat-val { font-weight: 900; color: var(--gold); }
+        
+        .game-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        #chicken-canvas { width: 80vw; max-width: 350px; cursor: pointer; }
+        .xp-bar { width: 250px; height: 10px; background: #222; border-radius: 5px; overflow: hidden; margin-top: 10px; border: 1px solid #444; }
+        #xp-fill { width: 0%; height: 100%; background: var(--xp); box-shadow: 0 0 10px var(--xp); transition: 0.2s; }
+
+        .controls { width: 100%; padding: 20px; background: #000; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--cyan); }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; }
+        .modal-content { width: 100%; max-width: 400px; background: #111; padding: 20px; border-radius: 15px; border: 1px solid var(--gold); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.8em; }
+        th { color: var(--cyan); border-bottom: 1px solid #333; padding: 8px; }
+        td { padding: 10px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
 
-    <div id="start-screen" class="screen">
-        <div class="menu-card">
-            <h1 style="color:var(--gold); margin-bottom:20px;">CHICKEN RPG</h1>
-            <button class="btn btn-gold" onclick="showAuth('login')">LOG IN</button>
-            <button class="btn btn-outline" onclick="showAuth('signup')">CREATE ACCOUNT</button>
+    <div id="screen-menu" class="screen active">
+        <h1>Happy Chicken RPG V2.3.1</h1>
+        <button onclick="playSound('click'); showScreen('screen-login')">LOG IN</button>
+        <button onclick="playSound('click'); showScreen('screen-signup')">CREATE ACCOUNT</button>
+        <button onclick="playSound('click'); showScreen('screen-test-name')" style="border-color: var(--gold); color: var(--gold);">FREE TEST DEMO</button>
+        <button onclick="playSound('click'); showLeaderboard()">LEADERBOARD</button>
+        <button onclick="playSound('click'); toggleModal('modal-about', true)">ABOUT</button>
+    </div>
+
+    <div id="screen-test-name" class="screen">
+        <h1>ENTER PILOT NAME</h1>
+        <p style="font-size: 0.7em; color: #888; margin-bottom: 15px;">Progress will be kept if you sign up later!</p>
+        <input type="text" id="t-name" placeholder="Your Name">
+        <button onclick="startTestMode()">START DEMO</button>
+        <button onclick="showScreen('screen-menu')" style="border:none; color:#666">CANCEL</button>
+    </div>
+
+    <div id="screen-login" class="screen">
+        <h1>LOG IN</h1>
+        <input type="email" id="l-email" placeholder="Email">
+        <input type="password" id="l-pass" placeholder="Password">
+        <button id="btn-login" onclick="handleAuth('login')">ENTER GAME</button>
+        <button onclick="showScreen('screen-menu')" style="border:none; color:#666">BACK</button>
+    </div>
+
+    <div id="screen-signup" class="screen">
+        <h1>SIGN UP</h1>
+        <input type="text" id="s-name" placeholder="Pilot Name">
+        <input type="email" id="s-email" placeholder="Email">
+        <input type="password" id="s-pass" placeholder="Password (6+ chars)">
+        <button id="btn-signup" onclick="handleAuth('signup')">CREATE & SAVE</button>
+        <button onclick="showScreen('screen-menu')" style="border:none; color:#666">BACK</button>
+    </div>
+
+    <div id="screen-game" class="screen" style="padding:0;">
+        <div class="hud">
+            <div><small>GOLD</small><div id="gold" class="stat-val">0.00$</div></div>
+            <div style="text-align: center;"><small id="mode-tag" style="color:var(--cyan)">ONLINE</small><div id="tier" class="stat-val">0</div></div>
+            <div style="text-align: right;"><small>XP</small><div id="xp-text" class="stat-val" style="font-size:0.8em;">0/100</div></div>
+        </div>
+        <div class="game-zone">
+            <canvas id="chicken-canvas"></canvas>
+            <div class="xp-bar"><div id="xp-fill"></div></div>
+        </div>
+        <div class="controls">
+            <button id="evolve-btn" disabled>ASCEND <small id="e-price" style="display:block; font-size:0.6em;">$7.00</small></button>
+            <button id="buy-auto">GUARDIAN <small id="a-price" style="display:block; font-size:0.6em;">$25.00</small></button>
+            <button onclick="location.reload()" style="border:none; color:#444; font-size:0.6em;">EXIT / LOGOUT</button>
         </div>
     </div>
 
-    <div id="auth-screen" class="screen hidden">
-        <div class="menu-card">
-            <h2 id="auth-title" style="color:var(--gold); margin-top:0;">LOGIN</h2>
-            
-            <div id="form-fields">
-                <label>NICKNAME</label>
-                <input type="text" id="field-nick" placeholder="Username">
-                
-                <div id="extra-fields" class="hidden">
-                    <label>EMAIL</label>
-                    <input type="email" id="field-email" placeholder="example@mail.com">
-                    <label>BIRTH DATE</label>
-                    <input type="date" id="field-birth">
-                </div>
-
-                <label>PASSWORD</label>
-                <input type="password" id="field-pass" placeholder="Enter MDP">
-            </div>
-
-            <button id="auth-submit" class="btn btn-gold" onclick="processAuth()">CONFIRM ⚔️</button>
-            <button class="btn btn-outline" style="font-size:10px; padding:8px;" onclick="backToStart()">BACK</button>
+    <div id="modal-leader" class="modal"><div class="modal-content"><h2 style="color:var(--gold); text-align:center;">LEADERBOARD</h2><div id="leader-list"></div><button onclick="toggleModal('modal-leader', false)" style="margin-top:20px;">CLOSE</button></div></div>
+    
+    <div id="modal-about" class="modal">
+        <div class="modal-content" style="text-align:center;">
+            <h2 style="color:var(--cyan)">ABOUT</h2>
+            <p style="font-size:0.8em; margin:15px 0;">Happy Chicken RPG: V2.3.1<br>Developed by ZiR.<br>A massive clicker game where you can evolve eggs into forms you’d never expect!"<br>YOUTUBE:https://www.youtube.com/channel/UCkreDEtOUqScwHIb9Ffxhtw</p>
+            <button onclick="toggleModal('modal-about', false)">CLOSE</button>
         </div>
     </div>
 
-    <div id="game-screen" class="screen hidden">
-        <div class="header">
-            <div class="stat-box"><small>HERO</small><b class="val" id="disp-nick">---</b></div>
-            <div class="stat-box"><small>GOLD</small><b class="val">$<span id="gold">0</span></b></div>
-            <div class="stat-box"><small>CLICKS</small><b class="val" id="clicks">0/50</b></div>
-        </div>
-        <button onclick="location.reload()" style="position:absolute; top:80px; left:20px; background:#ef4444; border:none; color:white; padding: 5px 12px; cursor:pointer; font-weight:bold; border-radius:10px; font-size:10px;">LOGOUT</button>
-        <button onclick="toggleRank()" style="position:absolute; top:80px; right:20px; background:var(--gold); border:none; color:black; border-radius:50%; width:40px; height:40px; cursor:pointer; font-weight:bold;">🏆</button>
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-            <h2 id="stage-name" style="color:#94a3b8; letter-spacing:2px; margin:0;">NORMAL EGG</h2>
-            <div id="enemy-sprite" onclick="handleAttack()">🥚</div>
-            <p id="bonus-info" style="color:#10b981; font-size:12px;">$1 per 50 clicks</p>
-        </div>
-        <div style="width:100%; max-width:450px; background:var(--card); padding:20px; border-radius:25px 25px 0 0;">
-            <button class="btn btn-gold" id="evolve-btn" onclick="buyEvolution()">EVOLVE (<span id="price-tag">$5</span>)</button>
-        </div>
-    </div>
-
-    <div id="rank-screen" class="screen hidden" style="background:rgba(2, 6, 23, 0.98);">
-        <div class="menu-card" style="width: 360px;">
-            <h2 style="color:var(--gold)">LEADERBOARD</h2>
-            <table><tbody id="ranking-list"></tbody></table>
-            <button class="btn btn-gold" onclick="toggleRank()">CLOSE</button>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+    <script>
+        // 1. CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyBF9FSfg-hTxPQgfsE_-qX52QU-QFs682c",
             authDomain: "chickenevolutionzir.firebaseapp.com",
             projectId: "chickenevolutionzir",
             storageBucket: "chickenevolutionzir.firebasestorage.app",
             messagingSenderId: "576435489622",
-            appId: "1:576435489622:web:b501c88918917e9eb824f7",
-            measurementId: "G-HG9KCW6KWW"
+            appId: "1:576435489622:web:b501c88918917e9eb824f7"
         };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        let data = { nick: "", email: "", birth: "", pass: "", money: 0, stage: 0, clickCount: 0 };
-        let authMode = "login";
-        const config = [
-            { name: "NORMAL EGG", icon: "🥚", price: 5, income: 1 },
-            { name: "GREEN CHICK", icon: "🐣", price: 10, income: 3 },
-            { name: "BRONZE CHICKEN", icon: "🐥", price: 20, income: 10 },
-            { name: "GOLDEN KING", icon: "🐓", price: 0, income: 50 }
-        ];
-
-        window.showAuth = (mode) => {
-            authMode = mode;
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('auth-title').innerText = mode === 'login' ? "LOGIN" : "CREATE ACCOUNT";
-            document.getElementById('extra-fields').classList.toggle('hidden', mode === 'login');
+        // 2. AUDIO
+        const sounds = {
+            click: new Audio('https://www.soundjay.com/buttons/button-45.mp3'),
+            evolve: new Audio('https://www.soundjay.com/buttons/button-09.mp3'),
+            buy: new Audio('https://www.soundjay.com/buttons/button-37.mp3')
         };
+        function playSound(n) { sounds[n].currentTime=0; sounds[n].play().catch(()=>{}); }
 
-        window.backToStart = () => {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
-        };
+        // 3. STATE
+        let mode = "guest";
+        let data = { money: 0, stage: 0, clicks: 0, auto: 0, name: "New Pilot" };
+        const prices = [7, 85, 500, 2500, 15000];
 
-        window.processAuth = async function() {
-            const nick = document.getElementById('field-nick').value.trim();
-            const pass = document.getElementById('field-pass').value.trim();
-            if(!nick || !pass) return alert("Fill all fields!");
-
-            const docRef = doc(db, "players", nick);
-            const docSnap = await getDoc(docRef);
-
-            if(authMode === "signup") {
-                if(docSnap.exists()) return alert("Username already taken!");
-                const email = document.getElementById('field-email').value;
-                const birth = document.getElementById('field-birth').value;
-                if(!email || !birth) return alert("Please fill Email and Birth Date!");
-                data = { nick, pass, email, birth, money: 0, stage: 0, clickCount: 0 };
-                enterGame();
-            } else {
-                if(!docSnap.exists()) return alert("User not found!");
-                const dbData = docSnap.data();
-                if(dbData.pass !== pass) return alert("Wrong password!");
-                data = dbData;
-                enterGame();
-            }
-        };
-
-        function enterGame() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            document.getElementById('disp-nick').innerText = data.nick.toUpperCase();
-            syncToFirebase();
-            startLeaderboardListener();
-            render();
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        function toggleModal(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
         }
 
-        window.handleAttack = () => {
-            data.clickCount++;
-            if(data.clickCount >= 50) {
-                data.money += config[data.stage].income;
-                data.clickCount = 0;
-                syncToFirebase();
-            }
-            render();
-        };
-
-        window.buyEvolution = () => {
-            const cur = config[data.stage];
-            if(data.money >= cur.price && data.stage < 3) {
-                data.money -= cur.price;
-                data.stage++;
-                syncToFirebase();
-                render();
-            }
-        };
-
-        async function syncToFirebase() {
-            if(data.nick) await setDoc(doc(db, "players", data.nick), data);
+        // 4. LOGIC
+        function startTestMode() {
+            const name = document.getElementById('t-name').value;
+            if(!name) return alert("Please enter a name");
+            mode = "test";
+            data.name = name;
+            document.getElementById('mode-tag').textContent = "TEST DEMO";
+            document.getElementById('s-name').value = name; // Auto-fill signup name
+            initGame();
         }
 
-        function startLeaderboardListener() {
-            const q = query(collection(db, "players"), orderBy("money", "desc"), limit(10));
-            onSnapshot(q, (snap) => {
-                let html = ""; let i = 1;
-                snap.forEach(d => {
-                    const p = d.data();
-                    html += `<tr class="${p.nick===data.nick?'me':''}"><td>${i++}</td><td style="text-align:left">${p.nick.toUpperCase()}</td><td>$${p.money}</td></tr>`;
+        async function handleAuth(type) {
+            const btn = document.getElementById(type === 'login' ? 'btn-login' : 'btn-signup');
+            btn.disabled = true;
+            try {
+                if(type === 'signup') {
+                    const name = document.getElementById('s-name').value;
+                    const email = document.getElementById('s-email').value;
+                    const pass = document.getElementById('s-pass').value;
+                    const res = await auth.createUserWithEmailAndPassword(email, pass);
+                    data.name = name;
+                    await db.collection('players').doc(res.user.uid).set(data);
+                } else {
+                    const email = document.getElementById('l-email').value;
+                    const pass = document.getElementById('l-pass').value;
+                    const res = await auth.signInWithEmailAndPassword(email, pass);
+                    const doc = await db.collection('players').doc(res.user.uid).get();
+                    if(doc.exists) data = doc.data();
+                }
+                mode = "online";
+                document.getElementById('mode-tag').textContent = "ONLINE";
+                initGame();
+            } catch(e) { alert(e.message); btn.disabled = false; }
+        }
+
+        function initGame() {
+            showScreen('screen-game');
+            updateUI();
+            setInterval(() => { if(data.auto > 0) { data.money += (data.auto * 0.05); updateUI(); } }, 1000);
+            if(mode === "online") setInterval(saveToCloud, 10000);
+            requestAnimationFrame(draw);
+        }
+
+        async function showLeaderboard() {
+            toggleModal('modal-leader', true);
+            const list = document.getElementById('leader-list');
+            list.innerHTML = "<p style='text-align:center'>Loading Ranking...</p>";
+            try {
+                const snap = await db.collection('players').orderBy('stage', 'desc').limit(5).get();
+                let table = "<table><tr><th>NAME</th><th>TIER</th><th>GOLD</th></tr>";
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    table += `<tr><td>${p.name}</td><td align="center">${p.stage}</td><td align="right">$${Math.floor(p.money)}</td></tr>`;
                 });
-                document.getElementById('ranking-list').innerHTML = html;
-            });
+                list.innerHTML = table + "</table>";
+            } catch(e) { list.innerHTML = "<p>Leaderboard Error.</p>"; }
         }
 
-        window.toggleRank = () => document.getElementById('rank-screen').classList.toggle('hidden');
+        // 5. ENGINE
+        const canvas = document.getElementById('chicken-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.height = 400;
+        let bscale = 1;
 
-        function render() {
-            document.getElementById('gold').innerText = data.money;
-            document.getElementById('clicks').innerText = data.clickCount + "/50";
-            const cur = config[data.stage];
-            document.getElementById('enemy-sprite').innerText = cur.icon;
-            document.getElementById('stage-name').innerText = cur.name;
-            document.getElementById('price-tag').innerText = data.stage < 3 ? "$" + cur.price : "MAX";
-            document.getElementById('evolve-btn').disabled = data.stage >= 3 || data.money < cur.price;
-            document.getElementById('bonus-info').innerText = `$${cur.income} per 50 clicks`;
+        canvas.addEventListener('pointerdown', () => {
+            bscale = 1.3;
+            data.money += 0.05;
+            if(data.clicks < 100) data.clicks++;
+            playSound('click');
+            updateUI();
+        });
+
+        document.getElementById('buy-auto').onclick = () => {
+            const p = Math.floor(25 * Math.pow(1.4, data.auto));
+            if(data.money >= p) { data.money -= p; data.auto++; playSound('buy'); updateUI(); }
+        };
+
+        document.getElementById('evolve-btn').onclick = () => {
+            const p = prices[data.stage];
+            if(data.money >= p && data.clicks >= 100) {
+                // TEST MODE LIMIT: STAGE 2
+                if(mode === "test" && data.stage >= 1) {
+                    alert("DEMO REACHED LIMIT! Please Create Account to unlock Stage 2 and save progress.");
+                    showScreen('screen-signup');
+                    return;
+                }
+                data.money -= p; data.stage++; data.clicks = 0;
+                playSound('evolve');
+                updateUI();
+                if(mode === "online") saveToCloud();
+            }
+        };
+
+        function updateUI() {
+            document.getElementById('gold').textContent = data.money.toFixed(2) + "$";
+            document.getElementById('tier').textContent = "TIER " + data.stage;
+            document.getElementById('xp-fill').style.width = data.clicks + "%";
+            document.getElementById('xp-text').textContent = data.clicks + "/100 XP";
+            const pE = prices[data.stage] || 99999;
+            document.getElementById('e-price').textContent = "$" + pE;
+            document.getElementById('evolve-btn').disabled = !(data.money >= pE && data.clicks >= 100);
+            const pA = Math.floor(25 * Math.pow(1.4, data.auto));
+            document.getElementById('a-price').textContent = "$" + pA;
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,400,400);
+            ctx.save();
+            ctx.translate(200, 200 + Math.sin(Date.now()/200)*5);
+            ctx.scale(bscale, bscale);
+            const colors = ["#fff", "#4ade80", "#00fbff", "#bc00ff", "#ffcc00"];
+            const c = colors[data.stage] || "#fff";
+            ctx.fillStyle = c; ctx.shadowBlur = 30; ctx.shadowColor = c;
+            if(data.stage === 0) {
+                ctx.beginPath(); ctx.ellipse(0, 0, 70, 95, 0, 0, Math.PI*2); ctx.fill();
+            } else {
+                ctx.beginPath(); ctx.ellipse(0, 20, 85, 75, 0, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(0, -45, 55, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.restore();
+            bscale += (1 - bscale) * 0.1;
+            requestAnimationFrame(draw);
+        }
+
+        async function saveToCloud() {
+            if(auth.currentUser) {
+                await db.collection('players').doc(auth.currentUser.uid).set(data);
+            }
         }
     </script>
 <script data-goatcounter="https://mamonjyzir.goatcounter.com/count"
