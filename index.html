@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Happy Chicken RPG: V2.4.2</title>
+    <title>Happy Chicken RPG: V2.5.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-functions-compat.js"></script>
+
     <style>
         :root { --cyan: #00fbff; --gold: #ffcc00; --xp: #bc00ff; --bg: #050505; }
         * { margin:0; padding:0; box-sizing:border-box; user-select:none; font-family:'Orbitron',sans-serif; }
@@ -19,7 +20,8 @@
         h1 { color:var(--cyan); text-shadow:0 0 20px var(--cyan); margin-bottom:25px; text-align:center; }
         input, button { width:100%; max-width:320px; padding:14px; margin:6px 0; border-radius:12px; border:1px solid #333; background:#111; color:#fff; text-align:center; outline:none; font-weight:700; }
         button { border:1px solid var(--cyan); background:rgba(0,251,255,0.1); cursor:pointer; transition:0.3s; }
-        button:hover { background:var(--cyan); color:#000; box-shadow:0 0 20px var(--cyan); transform:scale(1.05); }
+        button:hover:not(:disabled) { background:var(--cyan); color:#000; box-shadow:0 0 20px var(--cyan); transform:scale(1.05); }
+        button:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
         .hud { position:fixed; top:0; width:100%; display:flex; justify-content:space-around; padding:12px; background:rgba(0,0,0,0.85); border-bottom:3px solid var(--cyan); z-index:20; }
         .stat-val { font-weight:900; color:var(--gold); text-shadow:0 0 8px var(--gold); }
         #chicken-canvas { width:80vw; max-width:360px; cursor:pointer; image-rendering:pixelated; }
@@ -29,30 +31,28 @@
         .modal { position:fixed; inset:0; background:rgba(0,0,0,0.96); display:none; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
         .modal-content { width:92%; max-width:420px; background:#111; padding:25px; border-radius:18px; border:2px solid var(--gold); text-align:center; }
         #particles { position:absolute; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
-        .particle { position:absolute; font-weight:900; text-shadow:0 0 8px #fff, 0 0 18px var(--cyan), 0 0 35px var(--gold); filter:blur(1.2px); opacity:0.9; pointer-events:none; animation:mistyPop 1.8s ease-out forwards; }
-        .particle.misty-orb { border-radius:50%; background:radial-gradient(circle, currentColor 30%, transparent 80%); filter:blur(2.5px); }
-        @keyframes mistyPop { 0%{transform:translateY(0) scale(1); opacity:0.95;} 40%{transform:translateY(-55px) scale(1.15);} 100%{transform:translateY(-135px) scale(0.6); opacity:0;} }
-       
-        /* BMC Button Style */
+        .particle { position:absolute; font-weight:900; text-shadow:0 0 8px #fff; pointer-events:none; animation:mistyPop 1.5s ease-out forwards; }
+        @keyframes mistyPop { 0%{transform:translateY(0); opacity:1;} 100%{transform:translateY(-100px); opacity:0;} }
         .bmc-btn { margin-top: 15px; transition: transform 0.3s; }
         .bmc-btn:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
+
     <div id="screen-menu" class="screen active">
-        <h1>Happy Chicken RPG V2.4.2</h1>
+        <h1>Happy Chicken RPG V2.5.1</h1>
         <button onclick="playSound('click'); showScreen('screen-login')">LOG IN</button>
         <button onclick="playSound('click'); showScreen('screen-signup')">CREATE ACCOUNT</button>
         <button onclick="playSound('click'); showScreen('screen-test-name')" style="border-color:var(--gold);color:var(--gold);">FREE TEST DEMO</button>
         <button onclick="playSound('click'); showLeaderboard()">LEADERBOARD</button>
         <button onclick="playSound('click'); toggleModal('modal-about', true)">ABOUT</button>
-       
         <div class="bmc-btn">
             <a href="https://www.buymeacoffee.com/happychicken" target="_blank">
                 <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 45px !important; width: 163px !important;">
             </a>
         </div>
     </div>
+
     <div id="screen-test-name" class="screen">
         <h1>ENTER PILOT NAME</h1>
         <p style="font-size:0.7em;color:#888;margin-bottom:15px;">Progress will be kept if you sign up later!</p>
@@ -60,6 +60,7 @@
         <button onclick="startTestMode()">START DEMO</button>
         <button onclick="showScreen('screen-menu')" style="border:none;color:#666">CANCEL</button>
     </div>
+
     <div id="screen-login" class="screen">
         <h1>LOG IN</h1>
         <input type="email" id="l-email" placeholder="Email">
@@ -67,6 +68,7 @@
         <button id="btn-login" onclick="handleAuth('login')">ENTER GAME</button>
         <button onclick="showScreen('screen-menu')" style="border:none;color:#666">BACK</button>
     </div>
+
     <div id="screen-signup" class="screen">
         <h1>SIGN UP</h1>
         <input type="text" id="s-name" placeholder="Pilot Name">
@@ -75,6 +77,7 @@
         <button id="btn-signup" onclick="handleAuth('signup')">CREATE & SAVE</button>
         <button onclick="showScreen('screen-menu')" style="border:none;color:#666">BACK</button>
     </div>
+
     <div id="screen-game" class="screen" style="padding:0;">
         <div class="hud">
             <div><small>GOLD</small><div id="gold" class="stat-val">0.00$</div></div>
@@ -92,262 +95,194 @@
             <button onclick="handleLogout()" style="border:none;color:#555;font-size:0.7em;">EXIT / LOGOUT</button>
         </div>
     </div>
-    <div id="modal-leader" class="modal"><div class="modal-content"><h2 style="color:var(--gold);text-align:center;">LEADERBOARD</h2><div id="leader-list"></div><button onclick="toggleModal('modal-leader', false)" style="margin-top:20px;">CLOSE</button></div></div>
-   
+
+    <div id="modal-leader" class="modal"><div class="modal-content"><h2 style="color:var(--gold);">RANKING</h2><div id="leader-list"></div><button onclick="toggleModal('modal-leader', false)">CLOSE</button></div></div>
+    
     <div id="modal-about" class="modal">
-        <div class="modal-content" style="text-align:center;">
+        <div class="modal-content">
             <h2 style="color:var(--cyan)">ABOUT</h2>
-            <p style="font-size:0.8em;margin:15px 0;">Happy Chicken RPG: V2.4.2<br>click game Developed by ZiR. 🐔🔊<br>A massive clicker game where you can evolve eggs into forms you’d never expect!"<br><br>YOUTUBE<br><a href="https://www.youtube.com/channel/UCkreDEtOUqScwHIb9Ffxhtw" target="_blank" style="color: red; font-size: 30px; text-decoration: none;">
-  <i class="fa-brands fa-youtube"></i>
-</a></p>
-           
+            <p style="font-size:0.8em;margin:15px 0;">Happy Chicken RPG: V2.5.1<br>click game Developed by ZiR. 🐔🔊<br>A massive clicker game where you can evolve eggs into forms you’d never expect!"<br><br>YOUTUBE<br><a href="https://www.youtube.com/channel/UCkreDEtOUqScwHIb9Ffxhtw" target="_blank" style="color: red; font-size: 30px; text-decoration: none;"><i class="fa-brands fa-youtube"></i></a></p>
             <p style="font-size:0.7em; color:var(--gold); margin-bottom: 8px;">Support the Developer:</p>
             <a href="https://www.buymeacoffee.com/happy-chicken" target="_blank">
                 <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Donate" style="height: 38px !important; width: 138px !important;">
             </a>
-            <br>
             <button onclick="toggleModal('modal-about', false)" style="margin-top: 15px;">CLOSE</button>
         </div>
     </div>
+
     <script>
-        // =============== CONFIG ===============
+        // =============== CONFIG FIREBASE ===============
         const firebaseConfig = {
-            apiKey: "AIzaSyBF9FSfg-hTxPQgfsE_-qX52QU-QFs682c",
-            authDomain: "chickenevolutionzir.firebaseapp.com",
-            projectId: "chickenevolutionzir",
-            storageBucket: "chickenevolutionzir.firebasestorage.app",
-            messagingSenderId: "576435489622",
-            appId: "1:576435489622:web:b501c88918917e9eb824f7"
+            apiKey: "AIzaSyDQ7npEz-AKFNxrl8SZf-BQC5qCpYbUQCA",
+            authDomain: "happychickenzir.firebaseapp.com",
+            projectId: "happychickenzir",
+            storageBucket: "happychickenzir.firebasestorage.app",
+            messagingSenderId: "378475238781",
+            appId: "1:378475238781:web:ebc232184079433d256814"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const functions = firebase.functions();
+        const db = firebase.firestore();
+
         // =============== AUDIO ===============
         const sounds = {
-            click: new Audio('https://orangefreesounds.com/wp-content/uploads/2024/11/Mechanical-click-sound-effect.mp3'),
+            click: new Audio('https://www.soundjay.com/buttons/button-16.mp3'),
             evolve: new Audio('https://www.soundjay.com/buttons/button-09.mp3'),
             buy: new Audio('https://www.soundjay.com/buttons/button-37.mp3')
         };
-        Object.values(sounds).forEach(s => {
-            s.volume = 1.0;
-            s.preload = 'auto';
-        });
-        function playSound(n) {
-            const s = sounds[n];
-            s.currentTime = 0;
-            s.play().catch(() => {});
+        function playSound(n) { 
+            const s = sounds[n]; 
+            if(s) { s.currentTime = 0; s.play().catch(()=>{}); } 
         }
-        // =============== STATE & LOGIC ===============
+
+        // =============== GAME STATE ===============
         let mode = "guest";
-        let data = { money:0, stage:0, xp:0, auto:0, name:"New Pilot", lastTime:Date.now() };
-        let localAddedXp = 0;
+        let data = { name: "Pilot", money: 0, stage: 0, xp: 0, auto: 0 };
         const prices = [7, 85, 500, 2500, 15000, 75000];
         const colors = ["#fff","#4ade80","#00fbff","#bc00ff","#ffcc00","#ff00aa"];
+
         function showScreen(id){ document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
         function toggleModal(id, show){ document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+
         function startTestMode(){
-            const name = document.getElementById('t-name').value.trim();
-            if(!name) return alert("Please enter a name");
+            const name = document.getElementById('t-name').value.trim() || "Guest";
             mode = "test";
             data.name = name;
-            data.lastTime = Date.now();
             document.getElementById('mode-tag').textContent = "TEST DEMO";
             initGame();
         }
+
         async function handleAuth(type){
             const btn = document.getElementById(type==='login'?'btn-login':'btn-signup');
             btn.disabled = true;
             try {
-                let res;
-                if(type==='signup'){
+                if(type === 'signup'){
                     const name = document.getElementById('s-name').value.trim();
                     const email = document.getElementById('s-email').value;
                     const pass = document.getElementById('s-pass').value;
-                    if(!name || !email || pass.length<6) throw new Error("Fill all fields correctly");
-                    res = await auth.createUserWithEmailAndPassword(email, pass);
-                    const createPlayerFunc = functions.httpsCallable('createPlayer');
-                    await createPlayerFunc({name});
+                    if(!name || pass.length < 6) throw new Error("Check Name or Password (min 6 chars)");
+                    const res = await auth.createUserWithEmailAndPassword(email, pass);
+                    data = { name, money: 0, stage: 0, xp: 0, auto: 0 };
+                    await db.collection("players").doc(res.user.uid).set(data);
                 } else {
                     const email = document.getElementById('l-email').value;
                     const pass = document.getElementById('l-pass').value;
-                    res = await auth.signInWithEmailAndPassword(email, pass);
-                }
-                const loadProgressFunc = functions.httpsCallable('loadProgress');
-                const progressRes = await loadProgressFunc();
-                data = progressRes.data.playerData;
-                if (progressRes.data.offlineGain > 0) {
-                    alert(`🎉 Welcome back!\nYou earned $${progressRes.data.offlineGain.toFixed(2)} while away!`);
+                    const res = await auth.signInWithEmailAndPassword(email, pass);
+                    const doc = await db.collection("players").doc(res.user.uid).get();
+                    if(doc.exists) data = doc.data();
                 }
                 mode = "online";
                 document.getElementById('mode-tag').textContent = "ONLINE";
                 initGame();
             } catch(e){ alert(e.message); btn.disabled = false; }
         }
+
         function initGame(){
             showScreen('screen-game');
             updateUI();
-            setInterval(autoIncome, 1000);
-            if(mode === "online") setInterval(updateProgress, 8000);
+            setInterval(() => { data.money += (data.auto * 0.1); updateUI(); }, 1000);
+            if(mode === "online") setInterval(saveData, 10000);
             requestAnimationFrame(draw);
         }
-        function autoIncome(){ 
-            data.money += data.auto * 0.08;
-            updateUI(); 
+
+        async function saveData(){
+            if(mode === "online" && auth.currentUser) {
+                await db.collection("players").doc(auth.currentUser.uid).set(data, {merge: true});
+            }
         }
-        async function updateProgress(){
-            try {
-                const updateFunc = functions.httpsCallable('updateProgress');
-                const res = await updateFunc({addedXp: localAddedXp});
-                data = res.data;
-                localAddedXp = 0;
-                updateUI();
-            } catch(e){ console.error(e); }
-        }
-        async function handleBuyAuto(){
+
+        function handleBuyAuto(){
             const p = Math.floor(25 * Math.pow(1.42, data.auto));
-            if(data.money < p) return;
-            try {
-                await updateProgress(); // Sync first
-                const buyFunc = functions.httpsCallable('buyAuto');
-                const res = await buyFunc();
-                data = res.data;
+            if(data.money >= p){
+                data.money -= p;
+                data.auto++;
                 playSound('buy');
                 updateUI();
-            } catch(e){ alert('Buy failed: ' + e.message); }
+                saveData();
+            }
         }
-        async function handleEvolve(){
+
+        function handleEvolve(){
             const p = prices[data.stage] || 999999;
-            if(mode==="test" && data.stage >= 2){
-                alert("DEMO LIMIT! Create account to unlock Stage 4+ 💎");
-                showScreen('screen-signup');
-                return;
-            }
-            if(data.money < p || data.xp < 100) return;
-            try {
-                await updateProgress(); // Sync first
-                const evolveFunc = functions.httpsCallable('evolve');
-                const res = await evolveFunc();
-                data = res.data;
+            if(data.money >= p && data.xp >= 100){
+                data.money -= p;
+                data.stage++;
+                data.xp = 0;
+                shake = 20;
                 playSound('evolve');
-                shake = 25;
                 updateUI();
-            } catch(e){ alert('Evolve failed: ' + e.message); }
-        }
-        async function handleLogout(){
-            if(mode === "online"){
-                await updateProgress();
-                await auth.signOut();
+                saveData();
             }
-            location.reload();
         }
-        // =============== CANVAS & INTERACTION ===============
+
+        function handleLogout(){ location.reload(); }
+
+        // =============== CANVAS & UI ===============
         const canvas = document.getElementById('chicken-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = canvas.height = 420;
+        canvas.width = canvas.height = 400;
         let bscale = 1, shake = 0;
+
         canvas.addEventListener('pointerdown', e => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            bscale = 1.48;
-            shake = 10;
-            data.money += 0.05;
-            if(data.xp < 100) data.xp++;
-            if(mode === "online") localAddedXp++;
+            data.money += (0.05 + (data.stage * 0.1));
+            if(data.xp < 100) data.xp += 1.5;
+            bscale = 1.3;
             playSound('click');
-            createParticle(x, y, "+0.05");
+            createParticle(e.clientX, e.clientY);
             updateUI();
         });
-        function createParticle(x, y, text){
-            const container = document.getElementById('particles');
-            const stageColor = colors[data.stage % colors.length];
-            const txt = document.createElement('div');
-            txt.className = 'particle';
-            txt.textContent = text;
-            txt.style.left = (x + canvas.offsetLeft - 18) + 'px';
-            txt.style.top = (y + canvas.offsetTop - 45) + 'px';
-            txt.style.color = stageColor;
-            txt.style.fontSize = '19px';
-            container.appendChild(txt);
-            setTimeout(() => txt.remove(), 2000);
-            for(let i = 0; i < 6; i++){
-                const orb = document.createElement('div');
-                orb.className = 'particle misty-orb';
-                orb.style.width = orb.style.height = (6 + Math.random()*9) + 'px';
-                orb.style.left = (x + canvas.offsetLeft + (Math.random()*48-24)) + 'px';
-                orb.style.top = (y + canvas.offsetTop + (Math.random()*35-45)) + 'px';
-                orb.style.color = stageColor;
-                orb.style.animationDuration = (1.4 + Math.random()*0.7) + 's';
-                orb.style.opacity = 0.6 + Math.random()*0.4;
-                container.appendChild(orb);
-                setTimeout(() => orb.remove(), 2200);
-            }
+
+        function createParticle(x, y){
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.textContent = "+$";
+            p.style.left = x + "px"; p.style.top = y + "px";
+            p.style.color = colors[data.stage % colors.length];
+            document.getElementById('particles').appendChild(p);
+            setTimeout(() => p.remove(), 1000);
         }
+
         function updateUI(){
             document.getElementById('gold').textContent = data.money.toFixed(2) + "$";
-            document.getElementById('tier').innerHTML = `TIER <span style="color:${colors[data.stage]}">${data.stage}</span>`;
+            document.getElementById('tier').textContent = "TIER " + data.stage;
             document.getElementById('xp-fill').style.width = data.xp + "%";
-            document.getElementById('xp-text').textContent = data.xp + "/100 XP";
-            document.getElementById('e-price').textContent = "$" + (prices[data.stage]||999999);
-            document.getElementById('evolve-btn').disabled = !(data.money >= (prices[data.stage]||999999) && data.xp>=100);
+            document.getElementById('xp-text').textContent = Math.floor(data.xp) + "/100 XP";
+            const ep = prices[data.stage] || "MAX";
+            document.getElementById('e-price').textContent = "$" + ep;
+            document.getElementById('evolve-btn').disabled = !(data.money >= ep && data.xp >= 100);
             const ap = Math.floor(25 * Math.pow(1.42, data.auto));
             document.getElementById('a-price').textContent = "$" + ap;
             document.getElementById('auto-count').textContent = "x" + data.auto;
         }
+
         function draw(){
-            ctx.clearRect(0,0,420,420);
+            ctx.clearRect(0,0,400,400);
             ctx.save();
-            ctx.translate(210, 210 + Math.sin(Date.now()/180)*6);
+            ctx.translate(200, 200 + Math.sin(Date.now()/200)*5);
             ctx.scale(bscale, bscale);
-            if(shake>0){ ctx.translate(Math.random()*shake-shake/2, Math.random()*shake-shake/2); shake*=0.85; }
+            if(shake > 0){ ctx.translate(Math.random()*shake-shake/2, Math.random()*shake-shake/2); shake *= 0.9; }
             const c = colors[data.stage % colors.length];
-            ctx.fillStyle = c; ctx.shadowBlur = 40; ctx.shadowColor = c;
-            if(data.stage === 0){
-                ctx.beginPath(); ctx.ellipse(0,10,68,92,0,0,Math.PI*2); ctx.fill();
-            } else if(data.stage === 1){
-                ctx.beginPath(); ctx.ellipse(0,25,78,65,0,0,Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(0,-38,48,0,Math.PI*2); ctx.fill();
-                ctx.fillStyle="#111"; ctx.beginPath(); ctx.arc(-18,-45,8,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(18,-45,8,0,Math.PI*2); ctx.fill();
-                ctx.fillStyle="#ff8800"; ctx.beginPath(); ctx.moveTo(-8,-25); ctx.lineTo(8,-25); ctx.lineTo(0,-10); ctx.fill();
-            } else if(data.stage === 2){
-                ctx.beginPath(); ctx.ellipse(0,30,85,70,0,0,Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(0,-42,52,0,Math.PI*2); ctx.fill();
-                ctx.strokeStyle="#ffcc00"; ctx.lineWidth=12;
-                ctx.beginPath(); ctx.moveTo(-25,55); ctx.lineTo(-35,95); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(25,55); ctx.lineTo(35,95); ctx.stroke();
-            } else if(data.stage === 3){
-                ctx.beginPath(); ctx.ellipse(0,22,90,68,0,0,Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(0,-48,55,0,Math.PI*2); ctx.fill();
-                ctx.fillStyle="#00ffcc";
-                ctx.beginPath(); ctx.ellipse(-55,10,35,18,0.8,0,Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(55,10,35,18,-0.8,0,Math.PI*2); ctx.fill();
-            } else {
-                ctx.beginPath(); ctx.ellipse(0,15,95,72,0,0,Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(0,-55,60,0,Math.PI*2); ctx.fill();
-                ctx.fillStyle="#ffff00"; ctx.font="bold 38px Orbitron"; ctx.textAlign="center";
-                ctx.fillText("👑",0,-75);
+            ctx.fillStyle = c; ctx.shadowBlur = 30; ctx.shadowColor = c;
+            if(data.stage === 0) { ctx.beginPath(); ctx.ellipse(0,0,50,70,0,0,Math.PI*2); ctx.fill(); }
+            else { 
+                ctx.beginPath(); ctx.arc(0, 20, 60, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(0, -40, 40, 0, Math.PI*2); ctx.fill();
             }
             ctx.restore();
-            bscale += (1 - bscale) * 0.12;
+            bscale += (1 - bscale) * 0.1;
             requestAnimationFrame(draw);
         }
+
         async function showLeaderboard(){
             toggleModal('modal-leader', true);
             const list = document.getElementById('leader-list');
-            list.innerHTML = "<p style='text-align:center'>Loading Ranking...</p>";
+            list.innerHTML = "Loading...";
             try {
-                if(mode === "test") {
-                    list.innerHTML = "<p>Leaderboard not available in demo mode.</p>";
-                    return;
-                }
-                const leaderFunc = functions.httpsCallable('getLeaderboard');
-                const res = await leaderFunc();
-                let table = "<table style='width:100%; border-collapse:collapse;'><tr><th>NAME</th><th>TIER</th><th>GOLD</th></tr>";
-                res.data.forEach(p => {
-                    table += `<tr style='border-bottom:1px solid #333;'><td style='padding:8px;'>${p.name}</td><td align="center">${p.stage}</td><td align="right">$${p.money}</td></tr>`;
-                });
-                list.innerHTML = table + "</table>";
-            } catch(e){ list.innerHTML = "<p>Leaderboard Error.</p>"; }
+                const snap = await db.collection("players").orderBy("stage", "desc").limit(10).get();
+                let h = "<table style='width:100%'><tr><th>NAME</th><th>TIER</th></tr>";
+                snap.forEach(doc => { const p = doc.data(); h += `<tr><td>${p.name}</td><td>${p.stage}</td></tr>`; });
+                list.innerHTML = h + "</table>";
+            } catch(e){ list.innerHTML = "Ranking Error"; }
         }
     </script>
 </body>
